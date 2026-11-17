@@ -1,0 +1,255 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+/* GENERAL */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #f8f7ed;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+/* MAIN CONTAINER */
+
+.container {
+    position: relative;
+    width: 100%;
+    max-width: none;
+    min-height: 100vh;
+    background: #f8f7ed;
+    padding: 55px 65px 120px;
+    overflow: hidden;
+    box-shadow: none;
+}
+
+/* PAGES */
+
+.page {
+    display: none;
+}
+
+.page.active {
+    display: block;
+}
+
+/* PAGE NUMBER */
+
+.page-number {
+    position: absolute;
+    top: 0;
+    right: 50px;
+    background: #a6cbd9;
+    width: 78px;
+    height: 90px;
+    border-radius: 0 0 40px 40px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 36px;
+    font-weight: 700;
+    color: #111;
+}
+
+/* MAIN TITLE */
+
+h1 {
+    text-align: center;
+    font-size: 38px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    color: #222;
+    margin-bottom: 25px;
+}
+
+/* SUBTITLE */
+
+.subtitle {
+    display: table;
+    margin: 0 auto 45px;
+    padding: 4px 12px;
+    background: #a6cbd9;
+    border-radius: 7px;
+    font-size: 23px;
+    font-weight: 500;
+    color: #26343a;
+}
+
+/* INDUSTRIES */
+
+.industries {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    max-width: 1200px;
+    width: 100%;
+    margin: auto;
+}
+
+.industry {
+    font-size: 23px;
+    line-height: 1.65;
+    font-weight: 400;
+    color: #222;
+    white-space: nowrap;
+}
+
+/* OTHER PAGE CONTENT */
+
+.page-content {
+    text-align: center;
+    margin-top: 80px;
+}
+
+.page-content h2 {
+    font-size: 30px;
+    font-weight: 500;
+    margin-bottom: 20px;
+}
+
+.page-content p {
+    font-size: 20px;
+    color: #444;
+}
+
+/* FOOTER */
+
+.footer {
+    position: absolute;
+    bottom: 35px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 25px;
+}
+
+.line {
+    height: 4px;
+    background: #a6cbd9;
+    flex: 1;
+}
+
+.website {
+    font-size: 15px;
+    font-weight: 500;
+    color: #333;
+}
+
+/* NAVIGATION */
+
+.navigation {
+    position: fixed;
+    bottom: 65px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    display: flex;
+    align-items: center;
+    gap: 25px;
+
+    background: #ffffff;
+    padding: 10px 20px;
+    border-radius: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+    z-index: 100;
+}
+
+.navigation button {
+    border: none;
+    background: #a6cbd9;
+    color: #222;
+
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+
+    font-size: 22px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.navigation button:hover:not(:disabled) {
+    background: #7fb2c5;
+    transform: scale(1.1);
+}
+
+.navigation button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+#pageIndicator {
+    font-size: 16px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* RESPONSIVE DESIGN */
+
+@media (max-width: 700px) {
+
+    .container {
+        padding: 75px 25px 140px;
+    }
+
+    h1 {
+        font-size: 25px;
+    }
+
+    .subtitle {
+        font-size: 18px;
+    }
+
+    .industries {
+        grid-template-columns: 1fr;
+        gap: 0;
+        max-width: 330px;
+    }
+
+    .industry {
+        font-size: 17px;
+        white-space: normal;
+    }
+
+    .page-number {
+        right: 20px;
+        width: 50px;
+        height: 60px;
+        font-size: 25px;
+    }
+
+    .website {
+        font-size: 11px;
+    }
+
+    .navigation {
+        bottom: 65px;
+        gap: 15px;
+        padding: 8px 15px;
+    }
+
+    .navigation button {
+        width: 36px;
+        height: 36px;
+        font-size: 18px;
+    }
+
+    .page-content h2 {
+        font-size: 24px;
+    }
+
+    .page-content p {
+        font-size: 17px;
+    }
+}
