@@ -1,8 +1,6 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
-/* GENERAL */
-
 * {
     margin: 0;
     padding: 0;
@@ -15,22 +13,19 @@ body {
     min-height: 100vh;
     margin: 0;
     padding: 0;
+    color: #222;
 }
 
-/* MAIN CONTAINER */
+/* PAGES */
 
 .container {
     position: relative;
     width: 100%;
-    max-width: none;
     min-height: 100vh;
     background: #f8f7ed;
-    padding: 55px 65px 120px;
+    padding: 55px 65px 130px;
     overflow: hidden;
-    box-shadow: none;
 }
-
-/* PAGES */
 
 .page {
     display: none;
@@ -60,7 +55,7 @@ body {
     color: #111;
 }
 
-/* MAIN TITLE */
+/* HEADINGS */
 
 h1 {
     text-align: center;
@@ -71,8 +66,6 @@ h1 {
     margin-bottom: 25px;
 }
 
-/* SUBTITLE */
-
 .subtitle {
     display: table;
     margin: 0 auto 45px;
@@ -82,6 +75,7 @@ h1 {
     font-size: 23px;
     font-weight: 500;
     color: #26343a;
+    text-align: center;
 }
 
 /* INDUSTRIES */
@@ -100,32 +94,60 @@ h1 {
     line-height: 1.65;
     font-weight: 400;
     color: #222;
-    white-space: nowrap;
 }
 
-/* OTHER PAGE CONTENT */
+/* PAGE CONTENT */
 
 .page-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 45px;
     text-align: center;
-    margin-top: 80px;
 }
 
-.page-content h2 {
-    font-size: 30px;
+/* QR CODES */
+
+.qr-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    margin-top: 20px;
+}
+
+.qr-code {
+    width: 220px;
+    min-height: 220px;
+    padding: 15px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.qr-code canvas,
+.qr-code img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+.qr-container p {
+    font-size: 18px;
     font-weight: 500;
-    margin-bottom: 20px;
-}
-
-.page-content p {
-    font-size: 20px;
-    color: #444;
+    color: #333;
 }
 
 /* FOOTER */
 
 .footer {
     position: absolute;
-    bottom: 35px;
+    bottom: 25px;
     left: 0;
     width: 100%;
     display: flex;
@@ -144,6 +166,7 @@ h1 {
     font-size: 15px;
     font-weight: 500;
     color: #333;
+    white-space: nowrap;
 }
 
 /* NAVIGATION */
@@ -195,12 +218,12 @@ h1 {
     white-space: nowrap;
 }
 
-/* RESPONSIVE DESIGN */
+/* MOBILE */
 
 @media (max-width: 700px) {
 
     .container {
-        padding: 75px 25px 140px;
+        padding: 85px 25px 140px;
     }
 
     h1 {
@@ -219,7 +242,7 @@ h1 {
 
     .industry {
         font-size: 17px;
-        white-space: normal;
+        line-height: 1.8;
     }
 
     .page-number {
@@ -227,6 +250,16 @@ h1 {
         width: 50px;
         height: 60px;
         font-size: 25px;
+    }
+
+    .qr-code {
+        width: 190px;
+        min-height: 190px;
+        padding: 12px;
+    }
+
+    .qr-container p {
+        font-size: 15px;
     }
 
     .website {
@@ -243,13 +276,5 @@ h1 {
         width: 36px;
         height: 36px;
         font-size: 18px;
-    }
-
-    .page-content h2 {
-        font-size: 24px;
-    }
-
-    .page-content p {
-        font-size: 17px;
     }
 }
