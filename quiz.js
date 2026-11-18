@@ -1,181 +1,230 @@
 
-const professions = {
-    horeca: {
-        title: "HORECA",
-        subtitle: "Hospitality & Food Service",
-        number: 8,
-        questions: [
-            {
-                question: "What does HORECA stand for?",
-                answers: [
-                    "Hotels, Restaurants, Cafés",
-                    "Hospitals, Retail, Careers",
-                    "Homes, Recreation, Cars"
-                ],
-                correct: 0
-            }
-        ]
-    },
-
-    retail: {
-        title: "RETAIL / TRADE",
-        subtitle: "Retail & Commerce",
-        number: 9,
-        questions: []
-    },
-
-    it: {
-        title: "IT & TECHNOLOGY",
-        subtitle: "Information Technology",
-        number: 10,
-        questions: [
-            {
-                question: "Which language is used to structure web pages?",
-                answers: [
-                    "Python",
-                    "HTML",
-                    "C++"
-                ],
-                correct: 1
-            }
-        ]
-    },
-
-    healthcare: {
-        title: "HEALTHCARE",
-        subtitle: "Health & Medical Services",
-        number: 11,
-        questions: []
-    },
-
-    education: {
-        title: "EDUCATION",
-        subtitle: "Teaching & Learning",
-        number: 12,
-        questions: []
-    },
-
-    beauty: {
-        title: "BEAUTY, WELLNESS & SPORT",
-        subtitle: "Beauty, Health & Fitness",
-        number: 13,
-        questions: []
-    },
-
-    construction: {
-        title: "CONSTRUCTION",
-        subtitle: "Building & Engineering",
-        number: 14,
-        questions: []
-    },
-
-    transport: {
-        title: "TRANSPORTATION / LOGISTICS",
-        subtitle: "Transport & Supply Chain",
-        number: 15,
-        questions: []
-    },
-
-    media: {
-        title: "MEDIA & MARKETING",
-        subtitle: "Creative & Digital Media",
-        number: 16,
-        questions: []
-    },
-
-    manufacturing: {
-        title: "MANUFACTURING",
-        subtitle: "Production & Industry",
-        number: 17,
-        questions: []
-    }
+const labels = {
+    horeca: "HORECA",
+    retail: "RETAIL / TRADE",
+    it: "IT & TECHNOLOGY",
+    healthcare: "HEALTHCARE",
+    education: "EDUCATION",
+    beauty: "BEAUTY, WELLNESS & SPORT",
+    construction: "CONSTRUCTION",
+    transport: "TRANSPORTATION / LOGISTICS",
+    media: "MEDIA & MARKETING",
+    manufacturing: "MANUFACTURING"
 };
 
-const params = new URLSearchParams(window.location.search);
-const job = params.get("job");
-const profession = professions[job];
+const job = new URLSearchParams(window.location.search).get("job");
 
-const title = document.getElementById("professionTitle");
-const subtitle = document.getElementById("professionSubtitle");
-const number = document.getElementById("quizNumber");
-const content = document.getElementById("quizContent");
+const questions = window.PROFESSION_QUESTIONS?.[job];
 
-if (!profession) {
-    title.textContent = "PROFESSION NOT FOUND";
-    subtitle.textContent = "Invalid profession";
-    number.textContent = "?";
-    content.textContent = "Please scan a valid QR code.";
-} else {
-    title.textContent = profession.title;
-    subtitle.textContent = profession.subtitle;
-    number.textContent = profession.number;
+const $ = id => document.getElementById(id);
 
-    if (profession.questions.length === 0) {
-        content.textContent = "Questions coming soon!";
-    } else {
-        renderQuiz(profession.questions);
+let index = 0;
+let bank = 0;
+let seconds = 0;
+let interval = null;
+let locked = false;
+
+$("industry").textContent = labels[job] || "PROFESSION NOT FOUND";
+
+function money(n) {
+    return "€" + n.toLocaleString("en-IE");
+}
+
+function stopTimer() {
+    clearInterval(interval);
+    interval = null;
+}
+
+function setTime() {
+    $("timer").textContent = seconds + " seconds";
+
+    const total = questions[index]?.seconds || 1;
+
+    $("timeFill").style.width =
+        (Math.max(0, seconds) / total * 100) + "%";
+}
+
+function render() {
+    stopTimer();
+    locked = false;
+
+    if (!questions || !questions.length) {
+        $("question").textContent =
+            "No questions available for this profession.";
+
+        $("count").textContent = "Not found";
+        $("timer").textContent = "—";
+        $("answers").replaceChildren();
+        return;
     }
-}
 
-function renderQuiz(questions) {
-    const form = document.createElement("form");
+    if (index >= questions.length) {
+        $("count").textContent = "Completed";
+        $("level").textContent = "All questions finished";
+        $("timer").textContent = "—";
+        $("timeFill").style.width = "0%";
 
-    questions.forEach((q, index) => {
-        const card = document.createElement("div");
-        card.className = "question-card";
+        $("question").textContent =
+            "Game complete! Your final capital: " + money(bank);
 
-        const heading = document.createElement("h2");
-        heading.textContent = `${index + 1}. ${q.question}`;
-        card.appendChild(heading);
+        $("answers").replaceChildren();
 
-        q.answers.forEach((answer, answerIndex) => {
-            const label = document.createElement("label");
-            label.className = "answer";
+        $("feedback").hidden = false;
+        $("feedback").textContent =
+            "You have completed all " + questions.length + " questions.";
 
-            const input = document.createElement("input");
-            input.type = "radio";
-            input.name = `question${index}`;
-            input.value = answerIndex;
-            input.required = true;
+        $("next").hidden = true;
+        $("prize").textContent = "Thanks for playing!";
 
-            label.appendChild(input);
-            label.appendChild(
-                document.createTextNode(answer)
-            );
+        $("hint").textContent =
+            "Return to the industry list to play another profession.";
 
-            card.appendChild(label);
-        });
+        return;
+    }
 
-        form.appendChild(card);
+    const q = questions[index];
+
+    seconds = q.seconds;
+
+    $("count").textContent =
+        `Question ${index + 1} of ${questions.length}`;
+
+    $("level").textContent =
+        `${q.level} · ${q.category}`;
+
+    $("prize").textContent =
+        money(q.prize) + " for a correct answer";
+
+    $("bank").textContent = money(bank);
+    $("question").textContent = q.question;
+
+    $("feedback").hidden = true;
+    $("next").hidden = true;
+    $("answers").replaceChildren();
+
+    setTime();
+
+    q.answers.forEach((answerText, i) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "answer";
+
+        const letter = document.createElement("span");
+        letter.className = "letter";
+        letter.textContent = "ABCD"[i];
+
+        const content = document.createElement("span");
+        content.textContent = answerText;
+
+        button.append(letter, content);
+
+        button.addEventListener("click", () => answer(i));
+
+        $("answers").appendChild(button);
     });
 
-    const button = document.createElement("button");
-    button.type = "submit";
-    button.textContent = "Submit Answers";
-    form.appendChild(button);
+    interval = setInterval(() => {
+        seconds = Math.max(0, seconds - 1);
+        setTime();
 
-    const result = document.createElement("div");
-    result.className = "result";
-    form.appendChild(result);
+        if (seconds === 0) {
+            answer(-1);
+        }
+    }, 1000);
+}
 
-    form.addEventListener("submit", function(event) {
+function answer(choice) {
+    if (locked) return;
+
+    locked = true;
+    stopTimer();
+
+    const q = questions[index];
+    const correct = choice === q.correct;
+
+    [...$("answers").children].forEach((button, i) => {
+        button.disabled = true;
+
+        if (i === q.correct) {
+            button.classList.add("correct");
+        }
+
+        if (i === choice && !correct) {
+            button.classList.add("wrong");
+        }
+    });
+
+    if (correct) {
+        bank += q.prize;
+    }
+
+    $("bank").textContent = money(bank);
+
+    $("feedback").replaceChildren();
+
+    const heading = document.createElement("strong");
+
+    if (choice === -1) {
+        heading.textContent = "Time is up!";
+    } else if (correct) {
+        heading.textContent = "Correct! +" + money(q.prize);
+    } else {
+        heading.textContent = "Incorrect · +€0";
+    }
+
+    $("feedback").appendChild(heading);
+
+    const explanations = [
+        ["Logic", q.logic],
+        ["Lesson", q.lesson]
+    ];
+
+    explanations.forEach(([label, value]) => {
+        const paragraph = document.createElement("p");
+        const strong = document.createElement("strong");
+
+        strong.textContent = label + ": ";
+
+        paragraph.append(
+            strong,
+            document.createTextNode(value)
+        );
+
+        $("feedback").appendChild(paragraph);
+    });
+
+    $("feedback").hidden = false;
+    $("next").hidden = false;
+
+    $("next").textContent =
+        index === questions.length - 1
+            ? "See final result →"
+            : "Next question →";
+
+    $("hint").textContent =
+        "Press Space or click Next to continue.";
+}
+
+function nextQuestion() {
+    if (!locked || !questions || index >= questions.length) {
+        return;
+    }
+
+    index++;
+    render();
+}
+
+$("next").addEventListener("click", nextQuestion);
+
+document.addEventListener("keydown", event => {
+    if (
+        (event.code === "Space" || event.key === " ") &&
+        locked &&
+        event.target.tagName !== "BUTTON"
+    ) {
         event.preventDefault();
+        nextQuestion();
+    }
+});
 
-        let score = 0;
-
-        questions.forEach((q, index) => {
-            const selected = form.querySelector(
-                `input[name="question${index}"]:checked`
-            );
-
-            if (selected && Number(selected.value) === q.correct) {
-                score++;
-            }
-        });
-
-        result.textContent =
-            `Your score: ${score} / ${questions.length}`;
-    });
-
-    content.appendChild(form);
-}
+render();

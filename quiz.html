@@ -4,32 +4,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profession Quiz</title>
+    <title>Profession Game</title>
     <link rel="stylesheet" href="quiz.css">
 </head>
 <body>
 
-    <main class="quiz-container">
+<header class="header">
+    <a class="brand" href="index.html">
+        <span class="brand-mark">MM</span>
+        <strong>Millionaire Mindset</strong>
+    </a>
 
-        <div class="page-number" id="quizNumber">?</div>
+    <div class="header-center">
+        PROFESSION CHALLENGE · BUILD YOUR STARTING CAPITAL
+    </div>
 
-        <h1 id="professionTitle">PROFESSION QUIZ</h1>
+    <div class="capital">
+        <small>YOUR CAPITAL</small>
+        <strong id="bank">€0</strong>
+    </div>
+</header>
 
-        <div class="subtitle" id="professionSubtitle">
-            Loading...
+<main class="game">
+
+    <div class="meta">
+        <span id="industry">PROFESSION</span>
+        <span id="count">Question 1 / 16</span>
+        <span id="timer" class="timer">20 seconds</span>
+    </div>
+
+    <div class="question-wrap">
+        <div class="time-track">
+            <div id="timeFill"></div>
         </div>
 
-        <div id="quizContent"></div>
+        <section class="question-panel">
+            <h1 id="question">Loading question...</h1>
+            <p id="level"></p>
+        </section>
+    </div>
 
-        <div class="footer">
-            <div class="line"></div>
-            <span>millionairemind.pro</span>
-            <div class="line"></div>
-        </div>
+    <div class="answer-grid" id="answers"></div>
 
-    </main>
+    <div class="feedback" id="feedback" hidden></div>
 
-    <script src="quiz.js"></script>
+    <div class="controls">
+        <span id="prize">€250 per correct answer</span>
+        <button id="next" hidden>Next question →</button>
+    </div>
+
+    <div class="hint" id="hint">
+        After answering, press Space or click Next to continue.
+    </div>
+
+    <footer>millionairemind.pro</footer>
+
+</main>
+
+<script src="questions.js"></script>
+<script src="quiz.js"></script>
 
 </body>
 </html>
