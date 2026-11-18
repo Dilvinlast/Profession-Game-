@@ -23,27 +23,38 @@ let bank = 0;
 let seconds = 0;
 let interval = null;
 let locked = false;
+let currentAnswers = [];
 
-$("industry").textContent = labels[job] || "PROFESSION NOT FOUND";
+$("title").textContent = labels[job] || "PROFESSION NOT FOUND";
 
 function money(n) {
     return "€" + n.toLocaleString("en-IE");
 }
 
 function stopTimer() {
-    clearInterval(interval);
-    interval = null;
+    if (interval !== null) {
+        clearInterval(interval);
+        interval = null;
+    }
 }
 
-function setTime() {
-    $("timer").textContent = seconds + " seconds";
+// Randomly shuffle the answer positions
+function shuffleAnswers(question) {
+    const answers = question.answers.map((text, i) => ({
+        text: text,
+        isCorrect: i === question.correct
+    }));
 
-    const total = questions[index]?.seconds || 1;
+    for (let i = answers.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
 
-    $("timeFill").style.width =
-        (Math.max(0, seconds) / total * 100) + "%";
+        [answers[i], answers[j]] = [answers[j], answers[i]];
+    }
+
+    return answers;
 }
 
+// Display the current question
 function render() {
     stopTimer();
     locked = false;
@@ -51,34 +62,11 @@ function render() {
     if (!questions || !questions.length) {
         $("question").textContent =
             "No questions available for this profession.";
-
-        $("count").textContent = "Not found";
-        $("timer").textContent = "—";
-        $("answers").replaceChildren();
         return;
     }
 
     if (index >= questions.length) {
-        $("count").textContent = "Completed";
-        $("level").textContent = "All questions finished";
-        $("timer").textContent = "—";
-        $("timeFill").style.width = "0%";
-
-        $("question").textContent =
-            "Game complete! Your final capital: " + money(bank);
-
-        $("answers").replaceChildren();
-
-        $("feedback").hidden = false;
-        $("feedback").textContent =
-            "You have completed all " + questions.length + " questions.";
-
-        $("next").hidden = true;
-        $("prize").textContent = "Thanks for playing!";
-
-        $("hint").textContent =
-            "Return to the industry list to play another profession.";
-
+        showResults();
         return;
     }
 
@@ -87,65 +75,82 @@ function render() {
     seconds = q.seconds;
 
     $("count").textContent =
-        `Question ${index + 1} of ${questions.length}`;
+        `Question ${index + 1} / ${questions.length}`;
 
     $("level").textContent =
         `${q.level} · ${q.category}`;
 
-    $("prize").textContent =
-        money(q.prize) + " for a correct answer";
-
+    $("prize").textContent = money(q.prize);
     $("bank").textContent = money(bank);
+    $("timer").textContent = seconds + "s";
+
+    $("progress").style.width =
+        (index / questions.length * 100) + "%";
+
     $("question").textContent = q.question;
 
     $("feedback").hidden = true;
     $("next").hidden = true;
     $("answers").replaceChildren();
 
-    setTime();
+    // Shuffle answers for every question
+    currentAnswers = shuffleAnswers(q);
 
-    q.answers.forEach((answerText, i) => {
+    currentAnswers.forEach((answer, i) => {
         const button = document.createElement("button");
+
         button.type = "button";
         button.className = "answer";
 
         const letter = document.createElement("span");
         letter.className = "letter";
-        letter.textContent = "ABCD"[i];
+        letter.textContent = "ABCD"[i] + ".";
 
         const content = document.createElement("span");
-        content.textContent = answerText;
+        content.textContent = answer.text;
 
         button.append(letter, content);
 
-        button.addEventListener("click", () => answer(i));
+        button.addEventListener("click", () => {
+            answerQuestion(i);
+        });
 
         $("answers").appendChild(button);
     });
 
+    // Start timer
     interval = setInterval(() => {
-        seconds = Math.max(0, seconds - 1);
-        setTime();
+        seconds--;
 
-        if (seconds === 0) {
-            answer(-1);
+        $("timer").textContent = Math.max(0, seconds) + "s";
+
+        if (seconds <= 0) {
+            answerQuestion(-1);
         }
     }, 1000);
 }
 
-function answer(choice) {
+// Check the selected answer
+function answerQuestion(choice) {
     if (locked) return;
 
     locked = true;
     stopTimer();
 
     const q = questions[index];
-    const correct = choice === q.correct;
 
-    [...$("answers").children].forEach((button, i) => {
+    const correctIndex = currentAnswers.findIndex(
+        answer => answer.isCorrect
+    );
+
+    const correct = choice === correctIndex;
+
+    const buttons = [...$("answers").children];
+
+    buttons.forEach((button, i) => {
         button.disabled = true;
 
-        if (i === q.correct) {
+        if (i === correctIndex) {
             button.classList.add("correct");
         }
 
@@ -154,12 +159,14 @@ function answer(choice) {
         }
     });
 
+    // Add money only for a correct answer
     if (correct) {
         bank += q.prize;
     }
 
     $("bank").textContent = money(bank);
 
+    // Show feedback
     $("feedback").replaceChildren();
 
     const heading = document.createElement("strong");
@@ -169,17 +176,31 @@ function answer(choice) {
     } else if (correct) {
         heading.textContent = "Correct! +" + money(q.prize);
     } else {
-        heading.textContent = "Incorrect · +€0";
+        heading.textContent = "Not quite — +€0";
     }
 
     $("feedback").appendChild(heading);
 
-    const explanations = [
+    const correctAnswer = document.createElement("p");
+    const correctLabel = document.createElement("strong");
+
+    correctLabel.textContent = "Correct answer: ";
+
+    correctAnswer.append(
+        correctLabel,
+        document.createTextNode(
+            "ABCD"[correctIndex] + ". " +
+            currentAnswers[correctIndex].text
+        )
+    );
+
+    $("feedback").appendChild(correctAnswer);
+
+    // Display Logic and Lesson
+    [
         ["Logic", q.logic],
         ["Lesson", q.lesson]
-    ];
-
-    explanations.forEach(([label, value]) => {
+    ].forEach(([label, value]) => {
         const paragraph = document.createElement("p");
         const strong = document.createElement("strong");
 
@@ -200,11 +221,36 @@ function answer(choice) {
         index === questions.length - 1
             ? "See final result →"
             : "Next question →";
-
-    $("hint").textContent =
-        "Press Space or click Next to continue.";
 }
 
+// Final screen
+function showResults() {
+    stopTimer();
+    locked = true;
+
+    $("count").textContent = "Completed";
+    $("level").textContent = "Game finished";
+    $("timer").textContent = "—";
+    $("prize").textContent = "—";
+    $("bank").textContent = money(bank);
+
+    $("progress").style.width = "100%";
+
+    $("question").textContent =
+        "Congratulations! Your final bank: " + money(bank);
+
+    $("answers").replaceChildren();
+
+    $("feedback").hidden = false;
+    $("feedback").textContent =
+        "You have completed all " +
+        questions.length +
+        " questions.";
+
+    $("next").hidden = true;
+}
+
+// Next question
 function nextQuestion() {
     if (!locked || !questions || index >= questions.length) {
         return;
@@ -216,15 +262,18 @@ function nextQuestion() {
 
 $("next").addEventListener("click", nextQuestion);
 
+// Space to continue after answering
 document.addEventListener("keydown", event => {
     if (
-        (event.code === "Space" || event.key === " ") &&
+        event.code === "Space" &&
         locked &&
-        event.target.tagName !== "BUTTON"
+        questions &&
+        index < questions.length
     ) {
         event.preventDefault();
         nextQuestion();
     }
 });
 
+// Start the game
 render();
